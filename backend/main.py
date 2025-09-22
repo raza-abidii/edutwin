@@ -61,6 +61,21 @@ async def generate_exam(file: UploadFile = File(...)):
 
     return exam_result
 
+@app.post("/code_agent")
+
+async def code_agent(file: UploadFile = File(...)):
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
+        tmp.write(await file.read())
+        tmp_path = tmp.name
+
+    syllabus_text = extract_text_from_pdf(tmp_path)
+
+    exam_result = predict_exam(syllabus_text)
+    
+    destination = f"./uploads/{file.filename}"
+    shutil.copy(tmp_path, destination)
+
+    return exam_result
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8082)
