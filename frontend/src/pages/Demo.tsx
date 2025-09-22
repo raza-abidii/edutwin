@@ -24,6 +24,7 @@ const Demo = () => {
   const [quiz, setQuiz] = useState<any[]>([]);
   const [code, setCode] = useState<any>(null);
   const [schedule, setSchedule] = useState<any[]>([]);
+  const [studyResult, setStudyResult] = useState<any>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     console.log(e);
@@ -37,43 +38,22 @@ const Demo = () => {
   };
 
   const handleUpload = async () => {
-    console.log( "Uploading file:", uploadedFile);
     if (!uploadedFile) return;
     setLoading(true);
     const formData = new FormData();
     formData.append("file", uploadedFile);
 
     try {
-      // const notesRes = await fetch("http://localhost:8000/notes-agent", {
-      //   method: "POST",
-      //   body: formData,
-      // });
-      // const notesData = await notesRes.json();
-      // setNotes(notesData.notes);
-
-      // const quizRes = await fetch("http://localhost:8000/quiz-agent", {
-      //   method: "POST",
-      //   body: formData,
-      // });
-      // const quizData = await quizRes.json();
-      // setQuiz(quizData.quiz);
-
-      // const codeRes = await fetch("http://localhost:8000/code-agent", {
-      //   method: "POST",
-      //   body: formData,
-      // });
-      // const codeData = await codeRes.json();
-      // setCode(codeData.code);
-
-      const scheduleRes = await fetch("http://localhost:8082/planner-agent", {
+      const response = await fetch("http://localhost:8082/planner-agent", {
         method: "POST",
         body: formData,
       });
-      const scheduleData = await scheduleRes.json();
-      setSchedule(scheduleData.schedule);
-
+      const data = await response.json();
+      // If your backend returns { result: { schedule: [...] } }
+      setSchedule(data.result?.schedule || []);
     } catch (error) {
-      alert("Error processing file.");
+      console.error(error);
+      alert("Error fetching schedule from agent.");
     } finally {
       setLoading(false);
     }
@@ -301,30 +281,28 @@ const Demo = () => {
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-3">
-                        {(schedule.length > 0 ? schedule : []).map((item, index) => (
-                          <div key={index} className="flex items-center gap-4 p-3 glass-card rounded-lg">
-                            <div className="text-sm font-mono text-muted-foreground w-20">
-                              {item.time}
+                        {Array.isArray(schedule) && schedule.length > 0 ? (
+                          schedule.map((item, index) => (
+                            <div key={index} className="flex items-center gap-4 p-3 glass-card rounded-lg">
+                              <div className="text-sm font-mono text-muted-foreground w-20">
+                                {item.time}
+                              </div>
+                              <div className="flex-1">
+                                <div className="font-medium">{item.subject}</div>
+                                <div className="text-sm text-muted-foreground">{item.duration}</div>
+                              </div>
+                              <Badge variant={
+                                item.type === 'study' ? 'default' : 
+                                item.type === 'practice' ? 'secondary' : 
+                                'outline'
+                              }>
+                                {item.type}
+                              </Badge>
                             </div>
-                            <div className="flex-1">
-                              <div className="font-medium">{item.subject}</div>
-                              <div className="text-sm text-muted-foreground">{item.duration}</div>
-                            </div>
-                            <Badge variant={
-                              item.type === 'study' ? 'default' : 
-                              item.type === 'practice' ? 'secondary' : 
-                              'outline'
-                            }>
-                              {item.type}
-                            </Badge>
-                          </div>
-                        ))}
-                      </div>
-                      <div className="text-center mt-6">
-                        <Button className="gradient-primary text-white">
-                          <Calendar className="w-4 h-4 mr-2" />
-                          View Full Week Schedule
-                        </Button>
+                          ))
+                        ) : (
+                          <div>No schedule found.</div>
+                        )}
                       </div>
                     </CardContent>
                   </Card>

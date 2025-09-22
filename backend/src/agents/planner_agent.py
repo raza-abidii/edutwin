@@ -7,7 +7,7 @@ class PlannerAgent:
         
         for i, topic in enumerate(topics):
             day = days[i % len(days)]
-            time = f"{9 + (i % 3)}:00 AM"  # Just an example to vary the time
+            time = f"{9 + (i % 3)}:00 AM"
             duration = "2 hours" if i % 2 == 0 else "1 hour"
             study_type = "study"
             

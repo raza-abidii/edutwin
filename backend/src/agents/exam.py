@@ -14,14 +14,9 @@ except ImportError:
 
 
 class ExamPaperPredictionAgent:
-    """
-    MVP agent to generate a mock exam paper from syllabus topics.
-    """
-
     def __init__(self, syllabus: Union[str, List[str], os.PathLike]):
         self.topics = []
         if isinstance(syllabus, (str, list)):
-            # Split by lines or commas for basic topic extraction
             if isinstance(syllabus, str):
                 if syllabus.lower().endswith(".pdf"):
                     self.topics = self._extract_topics_from_pdf(syllabus)
@@ -40,7 +35,7 @@ class ExamPaperPredictionAgent:
             elif path.lower().endswith((".jpg", ".jpeg", ".png")):
                 self.topics = self._extract_topics_from_image(path)
         if not self.topics:
-            self.topics = ["Topic 1", "Topic 2"]  # fallback
+            self.topics = ["Topic 1", "Topic 2"]
 
     def _extract_topics_from_pdf(self, pdf_path: str) -> List[str]:
         try:
@@ -83,8 +78,4 @@ class ExamPaperPredictionAgent:
         for i, q in enumerate(exam["Part B"], 1):
             output.append(f"B{i}. {q}\n")
         return "".join(output)
-def predict_exam(syllabus_text: str) -> dict:
-    # Replace this with your actual exam prediction logic
-    return {
-        "exam_paper": f"Predicted exam based on syllabus: {syllabus_text[:100]}..."
-    }
+    
