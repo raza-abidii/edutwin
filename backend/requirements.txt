@@ -1,0 +1,5 @@
+FastAPI
+LangChain
+openai
+pymupdf
+uvicorn
